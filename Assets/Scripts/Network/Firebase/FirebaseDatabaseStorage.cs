@@ -29,26 +29,48 @@ namespace Strid.Network.Firebase {
 
         #region CRUD overrides
 
-        public void Insert(T newItem) { _parent.StartCoroutine(InsertAsync(newItem)); }
+        /// <summary>Inserts a new item in the database</summary>
+        /// <param name="newItem">Item to insert</param>
+        /// <param name="id">(Optional) Id of the item</param>
+        public void Insert(T newItem) { Insert(newItem, -1); }
+        public void Insert(T newItem, int id) { _parent.StartCoroutine(InsertAsync(newItem, id)); }
 
+        /// <summary>Finds an object by its ID<br />NOTE: This only refers to the last search, use FindAsync() to actually search in the database</summary>
+        /// <returns>The last search result</returns>
         public T Find(int id) { return _searchResult; }
 
+        /// <summary>Finds all stored objects<br />NOTE: This only refers to the last search, use FindAllAsync() to actually search in the database</summary>
+        /// <returns>The last search result</returns>
         public List<T> FindAll() { return _items; }
 
+        /// <summary>Counts the stored items<br />NOTE: This only refers to the last search, use CountAsync() to actually search in the database</summary>
+        /// <returns>The last count</returns>
         public int Count() { return _count; }
 
+        /// <summary>Updates a given object</summary>
+        /// <param name="id">ID of the object to update</param>
+        /// <param name="updatedItem">New value of the item</param>
         public void Update(int id, T updatedItem) { _parent.StartCoroutine(UpdateAsync(id, updatedItem)); }
 
+        /// <summary>Removes an item from the database</summary>
+        /// <param name="id">ID of the object to delete</param>
         public void Delete(int id) { _parent.StartCoroutine(DeleteAsync(id)); }
 
         #endregion
 
         #region Async CRUD
         
+        /// <summary>Searches for an item in the database<br />NOTE: Once found, you can access the item with Find()</summary>
+        /// <param name="id">ID of the object to find</param>
+        /// <param name="callback">What to do once the item has been found</param>
         public void FindAsync(int id, Action callback) { _parent.StartCoroutine(FindUpdate(id, callback)); }
-
+        
+        /// <summary>Searches for all stored items<br />NOTE: Once found, you can access the items with FindAll()</summary>
+        /// <param name="callback">What to do once the items has been found</param>
         public void FindAllAsync(Action callback) { _parent.StartCoroutine(FindAllUpdate(callback)); }
 
+        /// <summary>Counts the items in the database</summary>
+        /// <returns>Number of items stored</returns>
         public async Task<int> CountAsync() {
             await CountUpdate();
             return Count();
@@ -58,13 +80,15 @@ namespace Strid.Network.Firebase {
         
         #region Coroutines
 
-        private IEnumerator InsertAsync(T newItem) {
+        private IEnumerator InsertAsync(T newItem, int id = -1) {
             var task = CountUpdate();
             yield return new WaitUntil(() => task.IsCompleted);
+
+            var itemId = id == -1 ? _count : id;
             
-            newItem.SetId(_count);
-            
-            var insertTask = GetChild(_count).SetRawJsonValueAsync(JsonUtility.ToJson(newItem));
+            newItem.SetId(itemId);
+
+            var insertTask = GetChild(itemId).SetRawJsonValueAsync(JsonUtility.ToJson(newItem));
             yield return new WaitUntil(() => insertTask.IsCompleted);
             _reference.Child("count").SetValueAsync(++_count);
         }

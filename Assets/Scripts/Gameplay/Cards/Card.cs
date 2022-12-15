@@ -1,14 +1,15 @@
+using System;
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace Strid.Gameplay {
+namespace Strid.Gameplay.Cards {
     using Utility;
     using Utility.Storage;
-    
-    public enum CardType { Unit, Spy, UnitBuff, LineBuff, Weather, Decoy, Special }
-    public enum CardLine { Melee, Range, Siege, Any }
 
-    [System.Serializable]
+    public enum CardType { Unit, Spy, UnitBuff, LineBuff, Weather, Decoy, Special, }
+    public enum CardLine { Melee, Range, Siege, Any, }
+
+    [Serializable]
     public class Card : Loggable, IStorable {
         public int cardId = -1;
         public string title = "";
@@ -31,7 +32,7 @@ namespace Strid.Gameplay {
 
             #region Loggable
 
-            protected override string ToLog() { return $"Card {cardId}: [{combatPower}] - {title} ({type}, {line})"; }
+            protected override string ToLog() { return $"CardPrefab {cardId}: [{combatPower}] - {title} ({type}, {line})"; }
 
             #endregion
 
@@ -42,7 +43,9 @@ namespace Strid.Gameplay {
             public int GetId() { return cardId; }
 
             #endregion
-            
+
+            public override string ToString() { return $"[{combatPower}] - {title} ({type}, {line})"; }
+
         #endregion
     }
 }

@@ -2,7 +2,7 @@
 
 namespace Strid.Network {
     using Firebase;
-    using Gameplay;
+    using Gameplay.Cards;
     
     public class FirebaseCardStorage : FirebaseDatabaseStorage<Card> {
         private const string Table = "cards";

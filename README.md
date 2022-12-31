@@ -3,7 +3,7 @@
 Un jeu de combat de cartes à deux joueurs (humain vs COM), réalisé sous Unity avec Firebase.
 ## Installation
 
-* Télécharger [Lien de téléchargement (Google Drive)](https://drive.google.com/file/d/1E8A2Otbx1CGZYgtpz1e9aTSGA-A7816K/view?usp=share_link "Strid.apk") sur votre téléphone
+* Télécharger [Strid.apk](https://drive.google.com/file/d/1E8A2Otbx1CGZYgtpz1e9aTSGA-A7816K/view?usp=share_link "Lien de téléchargement (Google Drive)") sur votre téléphone
 * Trouver et lancer le fichier APK
 ## Comment jouer
 

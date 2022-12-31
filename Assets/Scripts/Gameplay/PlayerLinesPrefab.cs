@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Strid.Gameplay.Cards;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-namespace Strid {
+namespace Strid.Gameplay {
+    using Cards;
+    using Utility;
+    
     public class PlayerLinesPrefab : MonoBehaviour, IPointerClickHandler {
-        public PlayerHandPrefab Hand => hand;
         public bool humanPlayer = true;
         
         [SerializeField] private PlayerHandPrefab hand;
@@ -33,23 +35,9 @@ namespace Strid {
             _clicked = null;
         }
 
-        public void Play(UICardPrefab card) {
-            var model = card.model;
-
-            var pickLine = humanPlayer ? (Func<LinePrefab>) PickLine : PickLineRandom;
-
-            switch (model.type) {
-                case CardType.Unit:     GetLine(model.line, pickLine).AddUnit(card);                       break;
-                // TODO: Implement proper spies
-                case CardType.Spy:      GetLine(model.line, pickLine).AddUnit(card);                       break;
-                case CardType.UnitBuff: GetLine(model.line, pickLine).BuffUnit(card);                      break;
-                case CardType.LineBuff: GetLine(model.line, pickLine).BuffLine(card);                      break;
-                case CardType.Weather:  GetLine(model.line).Weather(card);                                 break;
-                case CardType.Decoy:    hand.AddCardToHand(GetLine(model.line).AddDecoy(card).gameObject); break;
-                // TODO: Implement proper special cards
-                case CardType.Special:  GetLine(model.line).AddUnit(card);                                 break;
-                default:                throw new ArgumentOutOfRangeException();
-            }
+        public async Task Play(UICardPrefab card) {
+            if (humanPlayer) await PickLine(card).ContinueWith(_ => PlayCard(card, GetLine(card.model.line)));
+            else await PlayCard(card, PickLineRandom());
         }
         
         public void OnPointerClick(PointerEventData eventData) {
@@ -77,19 +65,36 @@ namespace Strid {
             powers[2] = siege.GetCombatPower();
             return powers;
         }
+
+        private async Task PlayCard(UICardPrefab card, LinePrefab line) {
+            var model = card.model;
+
+            switch (model.type) {
+                case CardType.Unit:     line.AddUnit(card);                                 break;
+                // TODO: Implement proper spies
+                case CardType.Spy:      line.AddUnit(card);                                 break;
+                case CardType.UnitBuff: await line.BuffUnit(card);                          break;
+                case CardType.LineBuff: line.BuffLine(card);                                break;
+                case CardType.Weather:  line.Weather(card);                                 break;
+                case CardType.Decoy:    hand.AddCardToHand(line.AddDecoy(card).gameObject); break;
+                // TODO: Implement proper special cards
+                case CardType.Special:  line.AddUnit(card);                                 break;
+                default:                throw new ArgumentOutOfRangeException();
+            }
+        }
         
-        private LinePrefab PickLine() {
+        private async Task PickLine(UICardPrefab card) {
+            if (card.model.line != CardLine.Any) return;
+            
             meleeArea.SetActive(true);
             rangeArea.SetActive(true);
             siegeArea.SetActive(true);
 
-            while (_clicked == null) { }
+            await TaskUtils.WaitUntil(() => _clicked != null);
 
             meleeArea.SetActive(false);
             rangeArea.SetActive(false);
             siegeArea.SetActive(false);
-
-            return _clicked;
         }
 
         private LinePrefab PickLineRandom() {
@@ -103,13 +108,12 @@ namespace Strid {
             };
         }
 
-        private LinePrefab GetLine(CardLine line, Func<LinePrefab> onLinePick = null) {
+        private LinePrefab GetLine(CardLine line) {
             return line switch {
                 CardLine.Melee => melee,
                 CardLine.Range => range,
                 CardLine.Siege => siege,
-                CardLine.Any when onLinePick == null => throw new ArgumentException(),
-                CardLine.Any => onLinePick(),
+                CardLine.Any => _clicked,
                 _ => throw new ArgumentOutOfRangeException(nameof(line), line, null)
             };
         }

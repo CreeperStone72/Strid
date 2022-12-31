@@ -1,57 +1,36 @@
-﻿using System.Collections;
-using Strid.Gameplay.Cards;
-using TMPro;
+﻿using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Strid {
+namespace Strid.Gameplay.Cards {
+    /// <summary>Model used for Canvas-based display (player hand and lines)</summary>
     [RequireComponent(typeof(Image))]
     public class UICardPrefab : MonoBehaviour {
         public bool IsInFocus { get; private set; }
-        public bool IsVisible => 0 <= ScreenPosition && ScreenPosition <= 1;
-        public bool IsCentered => .5f - margin <= ScreenPosition && ScreenPosition <= .5f + margin;
+        // For some reason, [0 ; 60] is the on-screen interval, even with the normalized WorldToViewportPoint
+        public bool IsVisible => 0 <= ScreenPosition && ScreenPosition <= 60;
+        public bool IsCentered => 30f - margin <= ScreenPosition && ScreenPosition <= 30f + margin;
         private float ScreenPosition => Camera.main!.WorldToViewportPoint(transform.position).x;
         
-        public Card model;
-
         [SerializeField] private float margin;
-        [SerializeField] private float offset;
         
+        public Card model;
         private Image _front;
         
-        private void Start() {
-            _front = FindObjectOfType<Image>();
-            IsInFocus = false;
-        }
-
         public void SetModel(Card c) {
+            name = c.title;
+            _front = GetComponent<Image>();
+            IsInFocus = false;
+            
             model = c;
-            _front.sprite = model.artwork;
+            _front.sprite = Sprite.Create(model.artwork, new Rect(0.0f, 0.0f, model.artwork.width, model.artwork.height), new Vector2(0.5f, 0.5f));
         }
 
         public void OnFocusEnter(ref TMP_Text description) {
             IsInFocus = true;
             description.text = model.ToString();
-            StartCoroutine(Slide(true));
         }
 
-        public void OnFocusExit() {
-            IsInFocus = false;
-            StartCoroutine(Slide(false));
-        }
-
-        private IEnumerator Slide(bool slideUp) {
-            var start = slideUp ? transform.position : transform.position + Vector3.up * offset;
-            var end = slideUp ? start + Vector3.up * offset : transform.position;
-            var elapsedTime = 0f;
-
-            while (elapsedTime < 0.5f) {
-                transform.position = Vector3.Lerp(start, end, elapsedTime / 0.5f);
-                elapsedTime += Time.deltaTime;
-                yield return null;
-            }
-
-            transform.position = end;
-        }
+        public void OnFocusExit() { IsInFocus = false; }
     }
 }

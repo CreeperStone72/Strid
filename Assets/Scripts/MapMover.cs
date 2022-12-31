@@ -6,7 +6,9 @@ namespace Strid {
     public class MapMover : MonoBehaviour {
         private enum StartingPoint { TopLeft, TopRight, BottomLeft, BottomRight }
         private enum Movement { ClockwiseCircle, CounterClockwiseCircle, ClockwiseInfinity, CounterClockwiseInfinity }
-        
+        private Vector3 Position { set => transform.position = value; get => transform.position; }
+
+
         [SerializeField] private Vector3 topLeft;
         [SerializeField] private Vector3 bottomRight;
         [SerializeField] private float speed;
@@ -17,11 +19,6 @@ namespace Strid {
         [SerializeField] private Movement movement;
 
         private Vector3 _topRight, _bottomLeft;
-
-        private Vector3 Position {
-            set => transform.position = value;
-            get => transform.position;
-        }
 
         private void Start() {
             _topRight = new Vector3(bottomRight.x, topLeft.y);

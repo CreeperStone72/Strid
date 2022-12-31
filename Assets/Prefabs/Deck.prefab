@@ -47,5 +47,5 @@ MonoBehaviour:
   spaceBetweenCards: 0.1
   timeToSlide: 0.2
   playerHand: {fileID: 0}
-  uiCard: {fileID: 3782565668264666579, guid: 171ef17d948ac5343b9a6d33f981125b, type: 3}
+  uiCard: {fileID: 5958446283411166570, guid: 985e62b2b373ea44cbe5e74affe0992b, type: 3}
   cardPrefab: {fileID: 3864207255303852977, guid: 7fa1e2eac66b2dd4c88bf39a5e985065, type: 3}

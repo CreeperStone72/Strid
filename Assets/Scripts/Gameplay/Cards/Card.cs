@@ -1,31 +1,29 @@
 using System;
 using UnityEngine;
-using UnityEngine.Events;
 
 namespace Strid.Gameplay.Cards {
     using Utility;
     using Utility.Storage;
 
-    public enum CardType { Unit, Spy, UnitBuff, LineBuff, Weather, Decoy, Special, }
-    public enum CardLine { Melee, Range, Siege, Any, }
+    [Serializable] public enum CardType { Unit, Spy, UnitBuff, LineBuff, Weather, Decoy, Special, }
+    
+    [Serializable] public enum CardLine { Melee, Range, Siege, Any, }
 
     [Serializable]
     public class Card : Loggable, IStorable {
         public int cardId = -1;
         public string title = "";
-        public Sprite artwork;
+        public Texture2D artwork;
         
         // Stats
         public CardType type = CardType.Unit;
         public CardLine line = CardLine.Any;
         public int combatPower = -1;
 
-        public UnityEvent onPlayCard;
-
-        private void OnValidate() {
-            combatPower = Mathf.Max(2, Mathf.Min(combatPower, 10));
-            if (type == CardType.Spy) combatPower = 10;
-            if (type == CardType.UnitBuff) line = CardLine.Any;
+        public MaterialPropertyBlock GetArtwork() {
+            var block = new MaterialPropertyBlock();
+            block.SetTexture(Shader.PropertyToID("_MainTex"), artwork);
+            return block;
         }
 
         #region Overrides

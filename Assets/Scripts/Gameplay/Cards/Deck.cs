@@ -7,25 +7,8 @@ namespace Strid.Gameplay.Cards {
         private static readonly Random Rng = new Random();
         private readonly List<Card> _cards;
 
-        public Deck() { _cards = new List<Card>(); }
-        
-        public Deck(List<Card> cards) : this() { Populate(cards); }
-
-        public Card this[int id] {
-            get {
-                if (id < 0 || _cards.Count <= id) return null;
-                var card = _cards[id];
-                _cards.RemoveAt(id);
-                return card;
-
-            }
-        }
-
-        public int Count => _cards.Count;
-        
-        public void Populate(IEnumerable<Card> cards) { _cards.AddRange(cards); }
-
-        public IEnumerator<Card> GetEnumerator() { return _cards.GetEnumerator(); }
+        private Deck() { _cards = new List<Card>(); }
+        public Deck(IEnumerable<Card> cards) : this() { Populate(cards); }
 
         public IEnumerable<Card> Reverse() { return Enumerable.Reverse(_cards); }
 
@@ -51,6 +34,6 @@ namespace Strid.Gameplay.Cards {
             return drawn;
         }
 
-        public bool IsRangeValid(int id) { return 0 <= id && id < _cards.Count; }
+        private void Populate(IEnumerable<Card> cards) { _cards.AddRange(cards); }
     }
 }

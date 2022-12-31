@@ -1,11 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
-namespace Strid {
-    using Gameplay.Cards;
-    
+namespace Strid.Gameplay.Cards {
     public class GraveyardPrefab : MonoBehaviour {
         private Graveyard _graveyard;
 
@@ -27,12 +24,19 @@ namespace Strid {
 
         private IEnumerator TransferCard(GameObject card) {
             _graveyard.DestroyCard(card.GetComponent<UICardPrefab>().model);
-            
+
+            #region Create 3D card
+
             var drawn = Instantiate(cardPrefab, card.transform.position, Quaternion.identity, transform);
-            drawn.GetComponent<CardPrefab>().model.artwork = card.GetComponent<Image>().sprite;
+            drawn.GetComponent<CardPrefab>().model.artwork = card.GetComponent<UICardPrefab>().model.artwork;
             drawn.GetComponent<CardPrefab>().Flip();
             yield return new WaitForSeconds(drawn.GetComponent<CardPrefab>().FlipTime);
+
+            #endregion
+            
             Destroy(card);
+
+            #region Move 3D card to graveyard
 
             var start = drawn.transform.position;
             var end = _cardPosition;
@@ -46,6 +50,8 @@ namespace Strid {
 
             drawn.transform.position = end;
             _cardPosition += new Vector3(0, -cardOffset, spaceBetweenCards);
+
+            #endregion
         }
     }
 }

@@ -1,48 +1,30 @@
 ﻿using System.Collections;
 using UnityEngine;
 
-namespace Strid {
-    using Gameplay.Cards;
-    
+namespace Strid.Gameplay.Cards {
+    /// <summary>Model used for pseudo-3D effects with the deck and the graveyard</summary>
     public class CardPrefab : MonoBehaviour {
-        public Bounds Bounds => front.sprite.bounds;
-
         public float FlipTime => timeToFlip;
-        
         private bool IsFlippedDown => transform.localRotation.eulerAngles.y == 0f;
-
         private float Rotation => IsFlippedDown ? 180f : 0f;
         
-        public bool faceUp;
-
-        public Card model;
-
         [SerializeField] private Sprite backTexture;
-
         [SerializeField] private SpriteRenderer front, back;
-
         [SerializeField] private float timeToFlip = 1.5f;
 
-        // private Coroutine _test;
+        public bool faceUp;
+        public Card model;
 
-        private void Start() {
-            front.sprite = model.artwork;
+        public void OnStart(Card m, bool f) {
+            model = m;
+            faceUp = f;
+            Debug.Log(m);
+            front.SetPropertyBlock(m.GetArtwork());
             back.sprite = backTexture;
-            // _test = null;
         }
-
-        // private void Update() { test ??= StartCoroutine(Test()); }
 
         private void OnValidate() { transform.localRotation = Quaternion.Euler(0, faceUp ? -180f : 0f, 0); }
 
-        /*
-        private IEnumerator Test() {
-            Flip();
-            yield return new WaitForSeconds(timeToFlip * 2);
-            _test = null;
-        }
-        */
-        
         public void Flip() { StartCoroutine(RotateCard()); }
 
         private IEnumerator RotateCard() {
@@ -59,7 +41,5 @@ namespace Strid {
             
             transform.localRotation = Quaternion.Euler(Vector3.up * end);
         }
-
-        public void SetParent(Transform newParent) { transform.parent = newParent; }
     }
 }

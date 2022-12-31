@@ -1,11 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-namespace Strid {
+namespace Strid.Gameplay {
+    using Cards;
+    
     [RequireComponent(typeof(ScrollRect))]
     public class PlayerHandPrefab : MonoBehaviour, IPointerClickHandler {
         public bool isTurn;
@@ -13,38 +16,28 @@ namespace Strid {
         
         public bool humanPlayer = true;
 
-        public int CardCount => cards.Count;
+        public int CardCount => _cards.Count;
 
         public OnPlay onPlay;
-        public delegate void OnPlay();
+        public delegate Task OnPlay();
         
         [SerializeField] private PlayerLinesPrefab playerLines;
         [SerializeField] private GameObject hand;
         [SerializeField] private TMP_Text description;
+        [SerializeField] private ScrollRect scroll;
 
-        private List<UICardPrefab> cards;
-        private ScrollRect scroll;
+        private List<UICardPrefab> _cards;
 
-        private void Start() {
-            cards = new List<UICardPrefab>();
-            scroll = FindObjectOfType<ScrollRect>();
-
+        private void OnEnable() {
+            _cards = new List<UICardPrefab>();
             if (humanPlayer) scroll.onValueChanged.AddListener(UpdateCardFocus);
         }
 
-        private void OnDestroy() { if (humanPlayer) scroll.onValueChanged.RemoveListener(UpdateCardFocus); }
+        private void OnDisable() { if (humanPlayer) scroll.onValueChanged.RemoveListener(UpdateCardFocus); }
         
         public void AddCardToHand(GameObject card) {
-            cards.Add(card.GetComponent<UICardPrefab>());
-            card.transform.parent = hand.transform;
-        }
-
-        public void RemoveCardFromHand(GraveyardPrefab graveyard, UICardPrefab card) {
-            RemoveCardsFromHand(graveyard, new List<UICardPrefab> { card });
-        }
-
-        public void RemoveCardsFromHand(GraveyardPrefab graveyard, List<UICardPrefab> destroyedCards) {
-            graveyard.DestroyCards(destroyedCards.Select(card => card.gameObject).ToList());
+            _cards.Add(card.GetComponent<UICardPrefab>());
+            card.transform.SetParent(hand.transform);
         }
 
         public void StartRound(GraveyardPrefab graveyard) {
@@ -58,27 +51,37 @@ namespace Strid {
         }
 
         private void UpdateCardFocus(Vector2 position) {
-            foreach (var card in cards) {
+            foreach (var card in _cards) {
                 if (card.IsCentered) card.OnFocusEnter(ref description);
                 else if (card.IsInFocus) card.OnFocusExit();
             }
         }
 
-        public void PlayCard(int id) {
+        public async Task PlayCard(int id) {
             if (humanPlayer) return;
-            if (0 > id || id >= cards.Count) return;
-            playerLines.Play(cards[id]);
+            if (0 > id || id >= _cards.Count) return;
+            Debug.Log($"Playing {_cards[id]}");
+            await playerLines.Play(_cards[id]);
             isTurn = false;
-            onPlay();
+            await onPlay();
         }
 
         public void OnPointerClick(PointerEventData eventData) {
             if (!isTurn || !humanPlayer) return;
+
+            UICardPrefab played = null;
+            
             var target = eventData.pointerCurrentRaycast.gameObject.name;
-            string N(Component card) => card.gameObject.name;
-            foreach (var card in from card in cards where card.IsVisible && card.IsInFocus && N(card) == target select card) playerLines.Play(card);
-            isTurn = false;
-            onPlay();
+            foreach (var card in from card in _cards where card.IsVisible && card.gameObject.name == target select card) played = card;
+
+            if (played == null) return;
+            
+            Debug.Log($"Playing {played}");
+            
+            playerLines.Play(played).ContinueWith(_ => {
+                isTurn = false;
+                onPlay();
+            });
         }
     }
 }

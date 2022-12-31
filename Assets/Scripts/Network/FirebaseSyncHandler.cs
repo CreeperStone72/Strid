@@ -16,7 +16,7 @@ namespace Strid.Network {
         public Card card;
         public List<Card> cards;
         
-        private void Start() { _storage = new FirebaseCardStorage(this); }
+        private void Start() { _storage = new FirebaseCardStorage(); }
 
         public void InsertCard() { _storage.Insert(cards[count++]); }
 

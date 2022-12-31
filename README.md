@@ -11,7 +11,7 @@ Un jeu de combat de cartes à deux joueurs (humain vs COM), réalisé sous Unity
 
 Après un léger temps d'attente (nécessaire pour importer les cartes), vous arrivez à l'écran principal.
 
-![Écran de chargement et Menu principal](TODO: Embed Loading-Menu.gif from GitHub)
+![Écran de chargement et Menu principal](https://github.com/CreeperStone72/Strid/blob/main/Assets/Screenshots/Loading-Menu.gif)
 
 Pour lancer une partie, il suffit de cliquer sur START.
 
@@ -27,7 +27,7 @@ En début de chaque round, chaque joueur reçoit un certain nombre de cartes.
 
 Pour le premier round, le joueur humain joue en premier. Pour les rounds suivants, le vainqueur de la manche précédente joue en premier.
 
-![Début de partie](TODO: Capture d'écran - GameState0)
+![Début de partie](https://github.com/CreeperStone72/Strid/blob/main/Assets/Screenshots/GameStart.png)
 
 ### But du jeu
 
@@ -44,7 +44,7 @@ Chaque joueur possède trois lignes de combat :
 * Portée (archers, arbalétriers...)
 * Siège (trébuchets, catapultes...)
 
-![Lignes de combat](TODO: Capture d'écran - Lines)
+![Lignes de combat](https://github.com/CreeperStone72/Strid/blob/main/Assets/Screenshots/Lines.png)
 
 Chaque carte possède une ligne attitrée, un rôle, ainsi qu'une puissance de combat.
 
